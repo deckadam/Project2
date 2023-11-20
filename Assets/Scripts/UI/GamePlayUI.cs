@@ -22,8 +22,8 @@ namespace UI
 
         public async void OnGoBackClicked()
         {
+            await _mainUI.Show();
             await SceneManager.UnloadSceneAsync(1);
-            _mainUI.Show();
         }
 
         public void OnPlayClicked()
