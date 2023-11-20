@@ -2,7 +2,7 @@ using Player;
 using UnityEngine;
 using Zenject;
 
-namespace DefaultNamespace
+namespace ContextInstaller
 {
     public class ContextInstaller : MonoInstaller
     {
