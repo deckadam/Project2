@@ -5,7 +5,7 @@ using Zenject;
 
 namespace ContextInstaller
 {
-    public class ContextInstaller : MonoInstaller
+    public class GameSceneContextInstaller : MonoInstaller
     {
         [SerializeField] private PlayerData _playerData;
         [SerializeField] private CinemachineVirtualCamera _vCam;
@@ -14,7 +14,6 @@ namespace ContextInstaller
         {
             Container.BindInstance(_playerData).AsSingle();
             Container.BindInstance(_vCam).AsSingle();
-            
             Container.Bind<CameraController>().AsSingle();
         }
     }
