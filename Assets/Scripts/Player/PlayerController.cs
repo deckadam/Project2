@@ -18,14 +18,6 @@ namespace Player
         private void Awake()
         {
             _cameraController.Initialize(this);
-            StartGameplay();
-        }
-
-        public async void StartGameplay()
-        {
-            _movementController.StartMovement();
-            await UniTask.Delay(10000);
-            _movementController.StopMovement();
         }
     }
 }

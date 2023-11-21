@@ -1,5 +1,6 @@
-using System;
 using Cysharp.Threading.Tasks;
+using Event;
+using Player.Events;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -8,8 +9,6 @@ namespace UI
 {
     public class GamePlayUI : MonoBehaviour
     {
-        public event Action OnGameStartRequestedEvent;
-
         [SerializeField] private CanvasGroup _startGameGroup;
 
         private MainUI _mainUI;
@@ -31,8 +30,7 @@ namespace UI
             _startGameGroup.alpha = 0f;
             _startGameGroup.interactable = false;
             _startGameGroup.blocksRaycasts = false;
-            Debug.LogError("Game started");
-            OnGameStartRequestedEvent?.Invoke();
+            EventSystem.Raise(new GameStartRequestedEvent());
         }
     }
 }

@@ -1,5 +1,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Event;
+using Player.Events;
 using UnityEngine;
 using Zenject;
 
@@ -16,9 +18,20 @@ namespace Player
             _movementData = playerData.MovementData;
         }
 
+        private void OnEnable()
+        {
+            EventSystem.Subscribe<GameStartRequestedEvent>(OnGameStartRequested);
+        }
+
         private void OnDisable()
         {
+            EventSystem.Unsubscribe<GameStartRequestedEvent>(OnGameStartRequested);
             StopMovement();
+        }
+
+        private void OnGameStartRequested(BaseEvent obj)
+        {
+            StartMovement();
         }
 
         public async void StartMovement()
