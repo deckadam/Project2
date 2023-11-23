@@ -54,7 +54,7 @@ namespace Player
 
         public void StopMovement()
         {
-            _tokenSource.Cancel();
+            _tokenSource?.Cancel();
         }
     }
 }
