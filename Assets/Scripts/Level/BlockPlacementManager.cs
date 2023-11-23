@@ -47,7 +47,6 @@ namespace Level
             _activeBlock.Place();
         }
 
-
         public async void StartPlacement()
         {
             var cancellationToken = gameObject.GetCancellationTokenOnDestroy();
