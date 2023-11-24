@@ -66,6 +66,7 @@ namespace Player
         {
             _tokenSource?.Cancel();
             _tokenSource?.Dispose();
+            _tokenSource = null;
         }
     }
 }

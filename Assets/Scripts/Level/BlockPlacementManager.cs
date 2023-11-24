@@ -45,6 +45,7 @@ namespace Level
         {
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null;
         }
 
         private void OnBlockPlacementRequested(object obj)
