@@ -11,6 +11,11 @@ namespace Level
         protected bool _isLockedIn;
         private IMemoryPool _pool;
 
+        private void Awake()
+        {
+            gameObject.SetActive(false);
+        }
+
         public void Despawn()
         {
             _pool.Despawn(this);
@@ -32,7 +37,7 @@ namespace Level
         {
             _isOnRightSize = isOnRightSide;
             _isLockedIn = isLockedIn;
-            
+
             var xValue = 0f;
             if (!isLockedIn)
             {

@@ -7,8 +7,10 @@ namespace Level
     {
         [SerializeField] private float _placementThreshold;
         [SerializeField] private int _blockSpawnDelay;
+        [SerializeField] private int _blockCountPerLevel;
 
         public float PlacementThreshold => _placementThreshold;
         public int BlockSpawnDelay => _blockSpawnDelay;
+        public int BlockCountPerLevel => _blockCountPerLevel;
     }
 }

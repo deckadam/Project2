@@ -19,6 +19,22 @@ namespace UI
             _mainUI = mainUI;
         }
 
+        private void OnEnable()
+        {
+            EventSystem.Subscribe<FinishLineReachedEvent>(OnLevelFinished);
+        }
+
+
+        private void OnDisable()
+        {
+            EventSystem.Unsubscribe<FinishLineReachedEvent>(OnLevelFinished);
+        }
+
+        private void OnLevelFinished(object obj)
+        {
+            SetVisibility(true);
+        }
+
         public async void OnGoBackClicked()
         {
             await _mainUI.Show();
@@ -27,10 +43,15 @@ namespace UI
 
         public void OnPlayClicked()
         {
-            _startGameGroup.alpha = 0f;
-            _startGameGroup.interactable = false;
-            _startGameGroup.blocksRaycasts = false;
+            SetVisibility(false);
             EventSystem.Raise(new GameStartRequestedEvent());
+        }
+
+        private void SetVisibility(bool isVisible)
+        {
+            _startGameGroup.alpha = isVisible ? 1f : 0f;
+            _startGameGroup.interactable = isVisible;
+            _startGameGroup.blocksRaycasts = isVisible;
         }
     }
 }

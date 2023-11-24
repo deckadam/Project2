@@ -11,6 +11,7 @@ namespace Level
     public class BlockPlacementManager : MonoBehaviour
     {
         private MovingBlock.Factory _movingBlockFactory;
+        private LevelFinishBlock.Factory _finishLineBlockFactory;
         private BlockPlacementData _blockPlacementData;
         private List<Block> _activeBlocks;
         private MovingBlock _activeBlock;
@@ -20,9 +21,10 @@ namespace Level
         private bool _isRightSide;
 
         [Inject]
-        private void Inject(MovingBlock.Factory movingBlockFactory, BlockPlacementData blockPlacementData)
+        private void Inject(MovingBlock.Factory movingBlockFactory, LevelFinishBlock.Factory finishLineBlockFactory, BlockPlacementData blockPlacementData)
         {
             _movingBlockFactory = movingBlockFactory;
+            _finishLineBlockFactory = finishLineBlockFactory;
             _blockPlacementData = blockPlacementData;
         }
 
@@ -42,6 +44,11 @@ namespace Level
         }
 
         private void OnPlayerFallRequested(object obj)
+        {
+            CancelPlacement();
+        }
+
+        private void CancelPlacement()
         {
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
@@ -65,9 +72,22 @@ namespace Level
             var manualCancellationToken = new CancellationTokenSource();
             var cancellationToken = gameObject.GetCancellationTokenOnDestroy();
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(manualCancellationToken.Token, cancellationToken);
+            var spawnedBlockCount = 0;
             while (!_cancellationTokenSource.IsCancellationRequested)
             {
-                _activeBlock = CreateMovingBlock();
+                if (spawnedBlockCount >= _blockPlacementData.BlockCountPerLevel)
+                {
+                    Debug.LogError("Level finish check  " + spawnedBlockCount + "  " + _blockPlacementData.BlockCountPerLevel);
+                    CreateLevelFinishLine();
+                    CancelPlacement();
+                    return;
+                }
+                else
+                {
+                    _activeBlock = CreateMovingBlock();
+                }
+
+                spawnedBlockCount++;
                 var isCanceled = await UniTask.Delay(_blockPlacementData.BlockSpawnDelay, cancellationToken: _cancellationTokenSource.Token).SuppressCancellationThrow();
                 if (isCanceled)
                 {
@@ -84,6 +104,14 @@ namespace Level
             _activeBlocks.Add(newBlock);
             _currentZ += newBlock.GetSize();
             return newBlock;
+        }
+
+        private void CreateLevelFinishLine()
+        {
+            var newBlock = _finishLineBlockFactory.Create();
+            newBlock.Initialize(_currentZ, _isRightSide, true);
+            _activeBlocks.Add(newBlock);
+            _currentZ += newBlock.GetSize();
         }
     }
 }

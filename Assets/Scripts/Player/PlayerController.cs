@@ -20,11 +20,19 @@ namespace Player
         {
             _cameraController.Initialize(this);
             EventSystem.Subscribe<PlayerFallRequestedEvent>(OnPlayerFallRequested);
+            EventSystem.Subscribe<FinishLineReachedEvent>(OnFinishLineReached);
         }
 
         private void OnDisable()
         {
             EventSystem.Unsubscribe<PlayerFallRequestedEvent>(OnPlayerFallRequested);
+            EventSystem.Unsubscribe<FinishLineReachedEvent>(OnFinishLineReached);
+        }
+
+
+        private void OnFinishLineReached(object obj)
+        {
+            _movementController.StopMovement();
         }
 
         private void OnPlayerFallRequested(object obj)

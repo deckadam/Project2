@@ -12,14 +12,21 @@ namespace ContextInstaller
         [SerializeField] private BlockPlacementData _blockPlacementData;
         [SerializeField] private CinemachineVirtualCamera _vCam;
         [SerializeField] private PlayerData _playerData;
-        [SerializeField] private MovingBlock block;
+        [SerializeField] private MovingBlock _movingBlock;
+        [SerializeField] private LevelFinishBlock _levelFinishBlock;
 
         public override void InstallBindings()
         {
             Container.BindFactory<MovingBlock, MovingBlock.Factory>().
                 FromPoolableMemoryPool(x => x.WithInitialSize(20).
-                    FromComponentInNewPrefab(block).
+                    FromComponentInNewPrefab(_movingBlock).
                     UnderTransformGroup("MovingBlocks"));
+            
+            
+            Container.BindFactory<LevelFinishBlock, LevelFinishBlock.Factory>().
+                FromPoolableMemoryPool(x => x.WithInitialSize(2).
+                    FromComponentInNewPrefab(_levelFinishBlock).
+                    UnderTransformGroup("LevelFinishBlocks"));
             
             Container.BindInstance(_blockPlacementManager).AsSingle();
             Container.BindInstance(_blockPlacementData).AsSingle();

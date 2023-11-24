@@ -8,5 +8,10 @@ namespace DefaultNamespace
         {
             return new Vector3(x, data.y, data.z);
         }
+        
+        public static Vector3 ChangeY(this Vector3 data, float y)
+        {
+            return new Vector3(data.x, y, data.z);
+        }
     }
 }
