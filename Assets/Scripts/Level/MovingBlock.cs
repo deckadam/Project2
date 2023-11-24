@@ -1,5 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using DefaultNamespace;
 using UnityEngine;
 using Zenject;
 
@@ -10,7 +11,7 @@ namespace Level
         [SerializeField] private float _movementSpeed;
 
         private CancellationTokenSource _cancellationTokenSource;
-        
+
         protected override async void OnInitialize()
         {
             if (_isLockedIn)
@@ -20,8 +21,8 @@ namespace Level
 
             var manualCancellationTokenSource = new CancellationTokenSource();
             var onDestroyCancellationToken = gameObject.GetCancellationTokenOnDestroy();
-            _cancellationTokenSource =  CancellationTokenSource.CreateLinkedTokenSource(manualCancellationTokenSource.Token,onDestroyCancellationToken);
-            
+            _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(manualCancellationTokenSource.Token, onDestroyCancellationToken);
+
             var movementValue = _isOnRightSize ? _movementSpeed : -_movementSpeed;
             while (!onDestroyCancellationToken.IsCancellationRequested)
             {
@@ -34,11 +35,21 @@ namespace Level
             }
         }
 
-        public class Factory : PlaceholderFactory<MovingBlock> { }
-
-        public void Place()
+        public float GetThreshhold()
         {
-            _cancellationTokenSource.Cancel();
+            return transform.position.x;
         }
+
+        public void Place(bool isPerfectPlacement)
+        {
+            _cancellationTokenSource?.Cancel();
+            if (isPerfectPlacement)
+            {
+                Debug.LogError("Perfect");
+                transform.position = transform.position.ChangeX(0);
+            }
+        }
+
+        public class Factory : PlaceholderFactory<MovingBlock> { }
     }
 }

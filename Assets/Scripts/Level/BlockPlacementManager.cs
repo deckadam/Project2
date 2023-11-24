@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Event;
 using Player.Events;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using Zenject;
 
@@ -44,7 +43,9 @@ namespace Level
                 return;
             }
 
-            _activeBlock.Place();
+            var threshhold = _activeBlock.GetThreshhold();
+            var isPerfectPlacement = Mathf.Abs(threshhold) < _blockPlacementData.PlacementThreshold;
+            _activeBlock.Place(isPerfectPlacement);
         }
 
         public async void StartPlacement()
@@ -52,19 +53,19 @@ namespace Level
             var cancellationToken = gameObject.GetCancellationTokenOnDestroy();
             while (!cancellationToken.IsCancellationRequested)
             {
-                CreateMovingBlock();
+                _activeBlock = CreateMovingBlock();
                 await UniTask.Delay(_blockPlacementData.BlockSpawnDelay);
             }
         }
 
-        private void CreateMovingBlock(bool isFirstBlock = false)
+        private MovingBlock CreateMovingBlock(bool isFirstBlock = false)
         {
             var newBlock = _movingBlockFactory.Create();
             newBlock.Initialize(_currentZ, _isRightSide, isFirstBlock);
             _isRightSide = !_isRightSide;
             _activeBlocks.Add(newBlock);
             _currentZ += newBlock.GetSize();
-            _activeBlock = newBlock;
+            return newBlock;
         }
     }
 }

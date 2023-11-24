@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77fc000ae4fabd24ea3d5e093e0ce515, type: 3}
   m_Name: GamePlay Data
   m_EditorClassIdentifier: 
-  _placementThreshold: 0
+  _placementThreshold: 0.25
   _blockSpawnDelay: 2000
