@@ -1,4 +1,5 @@
-using Cysharp.Threading.Tasks;
+using Event;
+using Player.Events;
 using UnityEngine;
 using Zenject;
 
@@ -15,9 +16,20 @@ namespace Player
             _cameraController = cameraController;
         }
 
-        private void Awake()
+        private void OnEnable()
         {
             _cameraController.Initialize(this);
+            EventSystem.Subscribe<PlayerFallRequestedEvent>(OnPlayerFallRequested);
+        }
+
+        private void OnDisable()
+        {
+            EventSystem.Unsubscribe<PlayerFallRequestedEvent>(OnPlayerFallRequested);
+        }
+
+        private void OnPlayerFallRequested(object obj)
+        {
+            _movementController.StopMovement();
         }
     }
 }

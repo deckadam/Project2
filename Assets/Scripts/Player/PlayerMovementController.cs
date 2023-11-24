@@ -49,12 +49,23 @@ namespace Player
                 }
 
                 transform.Translate(0, 0, _movementData.PlayerMovementSpeed * Time.deltaTime);
+
+                if (!IsCharacterOnAPlatrform())
+                {
+                    EventSystem.Raise(new PlayerFallRequestedEvent());
+                }
             }
+        }
+
+        private bool IsCharacterOnAPlatrform()
+        {
+            return Physics.Raycast(transform.position + Vector3.up, Vector3.down, 10f, 1 << 6);
         }
 
         public void StopMovement()
         {
             _tokenSource?.Cancel();
+            _tokenSource?.Dispose();
         }
     }
 }

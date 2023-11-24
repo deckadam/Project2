@@ -1619,7 +1619,7 @@ GameObject:
   - component: {fileID: 2458567791414843741}
   - component: {fileID: 2458567791414843740}
   - component: {fileID: 2458567791414843731}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MovingBlockModel
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -27,6 +27,7 @@ namespace Level
             while (!onDestroyCancellationToken.IsCancellationRequested)
             {
                 transform.Translate(movementValue * Time.deltaTime, 0, 0);
+
                 var isCanceled = await UniTask.NextFrame(_cancellationTokenSource.Token).SuppressCancellationThrow();
                 if (isCanceled)
                 {
@@ -45,7 +46,6 @@ namespace Level
             _cancellationTokenSource?.Cancel();
             if (isPerfectPlacement)
             {
-                Debug.LogError("Perfect");
                 transform.position = transform.position.ChangeX(0);
             }
         }

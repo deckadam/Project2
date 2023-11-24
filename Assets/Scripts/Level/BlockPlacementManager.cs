@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Event;
 using Player.Events;
@@ -13,6 +14,7 @@ namespace Level
         private BlockPlacementData _blockPlacementData;
         private List<Block> _activeBlocks;
         private MovingBlock _activeBlock;
+        private CancellationTokenSource _cancellationTokenSource;
 
         private float _currentZ;
         private bool _isRightSide;
@@ -29,11 +31,20 @@ namespace Level
             _activeBlocks = new List<Block>();
             CreateMovingBlock(true);
             EventSystem.Subscribe<BlockPlaceRequestedEvent>(OnBlockPlacementRequested);
+            EventSystem.Subscribe<PlayerFallRequestedEvent>(OnPlayerFallRequested);
         }
+
 
         private void OnDisable()
         {
             EventSystem.Unsubscribe<BlockPlaceRequestedEvent>(OnBlockPlacementRequested);
+            EventSystem.Unsubscribe<PlayerFallRequestedEvent>(OnPlayerFallRequested);
+        }
+
+        private void OnPlayerFallRequested(object obj)
+        {
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
         }
 
         private void OnBlockPlacementRequested(object obj)
@@ -50,11 +61,17 @@ namespace Level
 
         public async void StartPlacement()
         {
+            var manualCancellationToken = new CancellationTokenSource();
             var cancellationToken = gameObject.GetCancellationTokenOnDestroy();
-            while (!cancellationToken.IsCancellationRequested)
+            _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(manualCancellationToken.Token, cancellationToken);
+            while (!_cancellationTokenSource.IsCancellationRequested)
             {
                 _activeBlock = CreateMovingBlock();
-                await UniTask.Delay(_blockPlacementData.BlockSpawnDelay);
+                var isCanceled = await UniTask.Delay(_blockPlacementData.BlockSpawnDelay, cancellationToken: _cancellationTokenSource.Token).SuppressCancellationThrow();
+                if (isCanceled)
+                {
+                    return;
+                }
             }
         }
 

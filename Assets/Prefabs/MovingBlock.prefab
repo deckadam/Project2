@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2458567791368455174}
   - component: {fileID: 2458567791368455169}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MovingBlock
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -59,7 +59,7 @@ GameObject:
   - component: {fileID: 2458567792075676515}
   - component: {fileID: 2458567792075676514}
   - component: {fileID: 2458567792075676525}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MovingBlockModel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
