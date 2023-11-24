@@ -35,7 +35,7 @@ namespace Event
             }
         }
 
-        public static void Raise<T>(T data) where T : BaseEvent
+        public static void Raise<T>(T data)
         {
             if (_events.TryGetValue(typeof(T), out var list))
             {

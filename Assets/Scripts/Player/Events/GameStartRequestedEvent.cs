@@ -2,7 +2,7 @@ using Event;
 
 namespace Player.Events
 {
-    public class GameStartRequestedEvent:BaseEvent
+    public class GameStartRequestedEvent
     {
         
     }
