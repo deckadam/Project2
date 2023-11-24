@@ -25,7 +25,7 @@ namespace Level
             EventSystem.Unsubscribe<GameStartRequestedEvent>(StartGame);
         }
 
-        private void StartGame(BaseEvent obj)
+        private void StartGame(object obj)
         {
             _blockPlacementManager.StartPlacement();
         }

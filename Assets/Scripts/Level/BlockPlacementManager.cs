@@ -37,7 +37,7 @@ namespace Level
             EventSystem.Unsubscribe<BlockPlaceRequestedEvent>(OnBlockPlacementRequested);
         }
 
-        private void OnBlockPlacementRequested(BaseEvent obj)
+        private void OnBlockPlacementRequested(object obj)
         {
             if (_activeBlock == null)
             {

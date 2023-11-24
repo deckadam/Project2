@@ -6,15 +6,15 @@ namespace Event
 {
     public static class EventSystem
     {
-        private static Dictionary<Type, List<Action<BaseEvent>>> _events;
+        private static Dictionary<Type, List<Action<object>>> _events;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Initialize()
         {
-            _events = new Dictionary<Type, List<Action<BaseEvent>>>();
+            _events = new Dictionary<Type, List<Action<object>>>();
         }
 
-        public static void Subscribe<T>(Action<BaseEvent> action) where T : BaseEvent
+        public static void Subscribe<T>(Action<object> action)
         {
             if (_events.TryGetValue(typeof(T), out var list))
             {
@@ -22,12 +22,12 @@ namespace Event
             }
             else
             {
-                _events[typeof(T)] = new List<Action<BaseEvent>>();
+                _events[typeof(T)] = new List<Action<object>>();
                 _events[typeof(T)].Add(action);
             }
         }
 
-        public static void Unsubscribe<T>(Action<BaseEvent> action) where T : BaseEvent
+        public static void Unsubscribe<T>(Action<object> action)
         {
             if (_events.TryGetValue(typeof(T), out var list))
             {
