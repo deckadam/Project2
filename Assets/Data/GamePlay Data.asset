@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: GamePlay Data
   m_EditorClassIdentifier: 
   _placementThreshold: 0
-  _blockSpawnDelay: 1000
+  _blockSpawnDelay: 2000

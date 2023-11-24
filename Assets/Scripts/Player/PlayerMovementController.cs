@@ -29,7 +29,7 @@ namespace Player
             StopMovement();
         }
 
-        private void OnGameStartRequested(BaseEvent obj)
+        private void OnGameStartRequested(object obj)
         {
             StartMovement();
         }
