@@ -1,5 +1,7 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Utility;
 using Zenject;
 
 namespace Level
@@ -7,9 +9,12 @@ namespace Level
     public class Block : MonoBehaviour
     {
         [SerializeField] protected float _size;
+        [SerializeField] private float _movementSpeed;
 
         protected bool _isOnRightSize;
         protected bool _isLockedIn;
+
+        private CancellationTokenSource _cancellationTokenSource;
         private IMemoryPool _pool;
 
         private void Awake()
@@ -41,8 +46,13 @@ namespace Level
         }
 
 
-        public void Initialize(float z, bool isOnRightSide, bool isLockedIn)
+        public void Initialize(float z, bool isOnRightSide, bool isLockedIn, Block previousBlock)
         {
+            if (previousBlock != null)
+            {
+                AdjustScale(previousBlock);
+            }
+
             _isOnRightSize = isOnRightSide;
             _isLockedIn = isLockedIn;
 
@@ -52,14 +62,64 @@ namespace Level
                 xValue = isOnRightSide ? -10f : 10f;
             }
 
-            var placementPosition = new Vector3(xValue, 0, z);
-            transform.position = placementPosition;
+            transform.position = new Vector3(xValue, 0, z);
 
             OnInitialize();
         }
 
-        protected virtual void OnInitialize() { }
 
-        public float GetSize() => _size;
+        public void Place(Block previousBlock, bool isPerfectPlacement)
+        {
+            _cancellationTokenSource?.Cancel();
+            if (isPerfectPlacement)
+            {
+                transform.position = transform.position.ChangeX(previousBlock.GetCenter());
+            }
+            else
+            {
+                Debug.LogError(GetCenter());
+                var currentScale = transform.localScale;
+                var currentPosition = transform.position;
+                var difference = previousBlock.GetCenter() - GetCenter();
+                var absDifference = Mathf.Abs(difference);
+                var scaleDifference = currentScale.x - absDifference;
+                Debug.LogError(difference);
+                transform.localScale = currentScale.ChangeX(scaleDifference);
+                transform.position = currentPosition.ChangeX(currentPosition.x + difference / 2f);
+            }
+        }
+
+        private void AdjustScale(Block previousBlock)
+        {
+            transform.localScale = previousBlock.transform.localScale;
+        }
+
+        private async void OnInitialize()
+        {
+            if (_isLockedIn)
+            {
+                return;
+            }
+
+            var manualCancellationTokenSource = new CancellationTokenSource();
+            var onDestroyCancellationToken = gameObject.GetCancellationTokenOnDestroy();
+            _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(manualCancellationTokenSource.Token, onDestroyCancellationToken);
+
+            var movementValue = _isOnRightSize ? _movementSpeed : -_movementSpeed;
+            while (!onDestroyCancellationToken.IsCancellationRequested)
+            {
+                transform.Translate(movementValue * Time.deltaTime, 0, 0);
+
+                var isCanceled = await UniTask.NextFrame(_cancellationTokenSource.Token).SuppressCancellationThrow();
+                if (isCanceled)
+                {
+                    break;
+                }
+            }
+        }
+
+        public float GetWidth() => transform.localScale.x;
+        public float GetCenter() => transform.position.x;
+        public float GetLength() => _size;
     }
 }

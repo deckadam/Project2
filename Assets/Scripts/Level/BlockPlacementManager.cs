@@ -13,8 +13,8 @@ namespace Level
         private MovingBlock.Factory _movingBlockFactory;
         private LevelFinishBlock.Factory _finishLineBlockFactory;
         private BlockManagerData _blockManagerData;
-        private List<Block> _activeBlocks;
-        private MovingBlock _activeBlock;
+        private List<Block> _placedBlocks;
+        private Block _activeBlock;
         private CancellationTokenSource _cancellationTokenSource;
 
         private float _currentZ;
@@ -30,8 +30,8 @@ namespace Level
 
         private void OnEnable()
         {
-            _activeBlocks = new List<Block>();
-            CreateMovingBlock(true);
+            _placedBlocks = new List<Block>();
+            _placedBlocks.Add(CreateMovingBlock(true));
             EventSystem.Subscribe<BlockPlaceRequestedEvent>(OnBlockPlacementRequested);
             EventSystem.Subscribe<PlayerFallRequestedEvent>(OnPlayerFallRequested);
         }
@@ -62,17 +62,18 @@ namespace Level
                 return;
             }
 
-            var threshhold = _activeBlock.GetThreshhold();
+            var threshhold = _activeBlock.GetCenter();
             var isPerfectPlacement = Mathf.Abs(threshhold) < _blockManagerData.PlacementThreshold;
-            _activeBlock.Place(isPerfectPlacement);
+            _activeBlock.Place(_placedBlocks[^1], isPerfectPlacement);
+            _placedBlocks.Add(_activeBlock);
         }
 
         public async void StartPlacement()
         {
-            DespawnPreviousBlocks();
+            // DespawnPreviousBlocks();
 
             CreateNewCancellationToken();
-            
+
             var spawnedBlockCount = 0;
             while (!_cancellationTokenSource.IsCancellationRequested)
             {
@@ -84,8 +85,7 @@ namespace Level
                 }
                 else
                 {
-                    _activeBlock = CreateMovingBlock();
-                    _activeBlocks.Add(_activeBlock);
+                    CreateMovingBlock();
                 }
 
                 spawnedBlockCount++;
@@ -106,30 +106,34 @@ namespace Level
 
         private void DespawnPreviousBlocks()
         {
-            for (var i = 0; i < _activeBlocks.Count; i++)
+            for (var i = 0; i < _placedBlocks.Count; i++)
             {
-                var activeBlock = _activeBlocks[i];
+                var activeBlock = _placedBlocks[i];
                 activeBlock.Despawn(_blockManagerData.BlockDespawnDelay * i);
             }
 
-            _activeBlocks.Clear();
+            _placedBlocks.Clear();
         }
 
-        private MovingBlock CreateMovingBlock(bool isFirstBlock = false)
+        private Block CreateMovingBlock(bool isFirstBlock = false)
         {
             var newBlock = _movingBlockFactory.Create();
-            newBlock.Initialize(_currentZ, _isRightSide, isFirstBlock);
-            _isRightSide = !_isRightSide;
-            _currentZ += newBlock.GetSize();
+            InitializeBlock(newBlock, isFirstBlock);
             return newBlock;
         }
 
         private void CreateLevelFinishLine()
         {
             var newBlock = _finishLineBlockFactory.Create();
-            newBlock.Initialize(_currentZ, _isRightSide, true);
-            _activeBlocks.Add(newBlock);
-            _currentZ += newBlock.GetSize();
+            InitializeBlock(newBlock);
+        }
+
+        private void InitializeBlock(Block newBlock, bool isFirstBlock = false)
+        {
+            newBlock.Initialize(_currentZ, _isRightSide, isFirstBlock, _activeBlock);
+            _isRightSide = !_isRightSide;
+            _currentZ += newBlock.GetLength();
+            _activeBlock = newBlock;
         }
     }
 }

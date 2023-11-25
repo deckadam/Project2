@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace DefaultNamespace
+namespace Utility
 {
     public static class VectorUtility
     {
