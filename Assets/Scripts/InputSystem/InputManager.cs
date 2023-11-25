@@ -14,12 +14,14 @@ namespace InputSystem
         {
             EventSystem.Subscribe<GameStartRequestedEvent>(CheckForInput);
             EventSystem.Subscribe<FinishLineReachedEvent>(StopCheckingForInput);
+            EventSystem.Subscribe<PlayerFallRequestedEvent>(StopCheckingForInput);
         }
 
         private void OnDisable()
         {
             EventSystem.Unsubscribe<GameStartRequestedEvent>(CheckForInput);
             EventSystem.Unsubscribe<FinishLineReachedEvent>(StopCheckingForInput);
+            EventSystem.Unsubscribe<PlayerFallRequestedEvent>(StopCheckingForInput);
         }
 
         private void StopCheckingForInput(object obj)

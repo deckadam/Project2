@@ -11,6 +11,7 @@ namespace Player
     {
         private PlayerData.PlayerMovementData _movementData;
         private CancellationTokenSource _tokenSource;
+        private float _currentCenter;
 
         [Inject]
         private void Inject(PlayerData playerData)
@@ -21,12 +22,20 @@ namespace Player
         private void OnEnable()
         {
             EventSystem.Subscribe<GameStartRequestedEvent>(OnGameStartRequested);
+            EventSystem.Subscribe<LaneCenterChangedEvent>(OnLaneCenterChanged);
         }
 
         private void OnDisable()
         {
             EventSystem.Unsubscribe<GameStartRequestedEvent>(OnGameStartRequested);
+            EventSystem.Unsubscribe<LaneCenterChangedEvent>(OnLaneCenterChanged);
             StopMovement();
+        }
+
+        private void OnLaneCenterChanged(object data)
+        {
+            var convertedData = data as LaneCenterChangedEvent;
+            _currentCenter = convertedData.newLineCenter;
         }
 
         private void OnGameStartRequested(object obj)
@@ -48,13 +57,21 @@ namespace Player
                     return;
                 }
 
-                transform.Translate(0, 0, _movementData.PlayerMovementSpeed * Time.deltaTime);
+                MoveCharacter();
 
                 if (!IsCharacterOnAPlatrform())
                 {
                     EventSystem.Raise(new PlayerFallRequestedEvent());
                 }
             }
+        }
+
+        private void MoveCharacter()
+        {
+            var currentPosition = transform.localPosition;
+            var currentX = currentPosition.x;
+            var lerpedValue = Mathf.MoveTowards(currentX, _currentCenter, _movementData.PlayerHorizontalSpeed * Time.deltaTime);
+            transform.position = new Vector3(lerpedValue, 0, currentPosition.z + _movementData.PlayerForwardSpeed * Time.deltaTime);
         }
 
         private bool IsCharacterOnAPlatrform()

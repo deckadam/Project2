@@ -13,9 +13,11 @@ namespace Player
         [Serializable]
         public class PlayerMovementData
         {
-            [SerializeField] private float _playerMovementSpeed;
-
-            public float PlayerMovementSpeed => _playerMovementSpeed;
+            [SerializeField] private float _playerForwardSpeed;
+            [SerializeField] private float _playerHorizontalSpeed;
+            
+            public float PlayerForwardSpeed => _playerForwardSpeed;
+            public float PlayerHorizontalSpeed => _playerHorizontalSpeed;
         }
     }
 }

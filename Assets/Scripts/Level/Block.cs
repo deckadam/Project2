@@ -1,5 +1,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Event;
+using Player.Events;
 using UnityEngine;
 using Utility;
 using Zenject;
@@ -67,7 +69,6 @@ namespace Level
             OnInitialize();
         }
 
-
         public void Place(Block previousBlock, bool isPerfectPlacement)
         {
             _cancellationTokenSource?.Cancel();
@@ -77,16 +78,20 @@ namespace Level
             }
             else
             {
-                Debug.LogError(GetCenter());
-                var currentScale = transform.localScale;
-                var currentPosition = transform.position;
-                var difference = previousBlock.GetCenter() - GetCenter();
-                var absDifference = Mathf.Abs(difference);
-                var scaleDifference = currentScale.x - absDifference;
-                Debug.LogError(difference);
-                transform.localScale = currentScale.ChangeX(scaleDifference);
-                transform.position = currentPosition.ChangeX(currentPosition.x + difference / 2f);
+                CutBlock(previousBlock);
+                EventSystem.Raise(new LaneCenterChangedEvent(GetCenter()));
             }
+        }
+
+        private void CutBlock(Block previousBlock)
+        {
+            var currentScale = transform.localScale;
+            var currentPosition = transform.position;
+            var difference = previousBlock.GetCenter() - GetCenter();
+            var absDifference = Mathf.Abs(difference);
+            var scaleDifference = currentScale.x - absDifference;
+            transform.localScale = currentScale.ChangeX(scaleDifference);
+            transform.position = currentPosition.ChangeX(currentPosition.x + difference / 2f);
         }
 
         private void AdjustScale(Block previousBlock)

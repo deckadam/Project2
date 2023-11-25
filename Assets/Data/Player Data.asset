@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Player Data
   m_EditorClassIdentifier: 
   _playerMovementData:
-    _playerMovementSpeed: 2.5
+    _playerForwardSpeed: 2.5
+    _playerHorizontalSpeed: 2
