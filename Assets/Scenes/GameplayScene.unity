@@ -592,7 +592,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _blockPlacementManager: {fileID: 1897986730}
-  _blockPlacementData: {fileID: 11400000, guid: d2173180c12d62649bdf613857b3ed5f, type: 2}
+  blockManagerData: {fileID: 11400000, guid: d2173180c12d62649bdf613857b3ed5f, type: 2}
   _vCam: {fileID: 522972373}
   _playerData: {fileID: 11400000, guid: b94a1773a290f8a4ca520ad1666367c5, type: 2}
   _movingBlock: {fileID: 2458567791368455169, guid: 672199483a6dac444b627ae538f1cc18, type: 3}

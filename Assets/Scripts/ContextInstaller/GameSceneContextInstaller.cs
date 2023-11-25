@@ -9,7 +9,7 @@ namespace ContextInstaller
     public class GameSceneContextInstaller : MonoInstaller
     {
         [SerializeField] private BlockPlacementManager _blockPlacementManager;
-        [SerializeField] private BlockPlacementData _blockPlacementData;
+        [SerializeField] private BlockManagerData blockManagerData;
         [SerializeField] private CinemachineVirtualCamera _vCam;
         [SerializeField] private PlayerData _playerData;
         [SerializeField] private MovingBlock _movingBlock;
@@ -29,7 +29,7 @@ namespace ContextInstaller
                     UnderTransformGroup("LevelFinishBlocks"));
             
             Container.BindInstance(_blockPlacementManager).AsSingle();
-            Container.BindInstance(_blockPlacementData).AsSingle();
+            Container.BindInstance(blockManagerData).AsSingle();
             Container.BindInstance(_playerData).AsSingle();
             Container.BindInstance(_vCam).AsSingle();
             

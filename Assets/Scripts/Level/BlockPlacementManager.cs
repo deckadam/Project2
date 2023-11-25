@@ -12,7 +12,7 @@ namespace Level
     {
         private MovingBlock.Factory _movingBlockFactory;
         private LevelFinishBlock.Factory _finishLineBlockFactory;
-        private BlockPlacementData _blockPlacementData;
+        private BlockManagerData _blockManagerData;
         private List<Block> _activeBlocks;
         private MovingBlock _activeBlock;
         private CancellationTokenSource _cancellationTokenSource;
@@ -21,11 +21,11 @@ namespace Level
         private bool _isRightSide;
 
         [Inject]
-        private void Inject(MovingBlock.Factory movingBlockFactory, LevelFinishBlock.Factory finishLineBlockFactory, BlockPlacementData blockPlacementData)
+        private void Inject(MovingBlock.Factory movingBlockFactory, LevelFinishBlock.Factory finishLineBlockFactory, BlockManagerData blockManagerData)
         {
             _movingBlockFactory = movingBlockFactory;
             _finishLineBlockFactory = finishLineBlockFactory;
-            _blockPlacementData = blockPlacementData;
+            _blockManagerData = blockManagerData;
         }
 
         private void OnEnable()
@@ -63,21 +63,21 @@ namespace Level
             }
 
             var threshhold = _activeBlock.GetThreshhold();
-            var isPerfectPlacement = Mathf.Abs(threshhold) < _blockPlacementData.PlacementThreshold;
+            var isPerfectPlacement = Mathf.Abs(threshhold) < _blockManagerData.PlacementThreshold;
             _activeBlock.Place(isPerfectPlacement);
         }
 
         public async void StartPlacement()
         {
-            var manualCancellationToken = new CancellationTokenSource();
-            var cancellationToken = gameObject.GetCancellationTokenOnDestroy();
-            _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(manualCancellationToken.Token, cancellationToken);
+            DespawnPreviousBlocks();
+
+            CreateNewCancellationToken();
+            
             var spawnedBlockCount = 0;
             while (!_cancellationTokenSource.IsCancellationRequested)
             {
-                if (spawnedBlockCount >= _blockPlacementData.BlockCountPerLevel)
+                if (spawnedBlockCount >= _blockManagerData.BlockCountPerLevel)
                 {
-                    Debug.LogError("Level finish check  " + spawnedBlockCount + "  " + _blockPlacementData.BlockCountPerLevel);
                     CreateLevelFinishLine();
                     CancelPlacement();
                     return;
@@ -85,10 +85,11 @@ namespace Level
                 else
                 {
                     _activeBlock = CreateMovingBlock();
+                    _activeBlocks.Add(_activeBlock);
                 }
 
                 spawnedBlockCount++;
-                var isCanceled = await UniTask.Delay(_blockPlacementData.BlockSpawnDelay, cancellationToken: _cancellationTokenSource.Token).SuppressCancellationThrow();
+                var isCanceled = await UniTask.Delay(_blockManagerData.BlockSpawnDelay, cancellationToken: _cancellationTokenSource.Token).SuppressCancellationThrow();
                 if (isCanceled)
                 {
                     return;
@@ -96,12 +97,29 @@ namespace Level
             }
         }
 
+        private void CreateNewCancellationToken()
+        {
+            var manualCancellationToken = new CancellationTokenSource();
+            var cancellationToken = gameObject.GetCancellationTokenOnDestroy();
+            _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(manualCancellationToken.Token, cancellationToken);
+        }
+
+        private void DespawnPreviousBlocks()
+        {
+            for (var i = 0; i < _activeBlocks.Count; i++)
+            {
+                var activeBlock = _activeBlocks[i];
+                activeBlock.Despawn(_blockManagerData.BlockDespawnDelay * i);
+            }
+
+            _activeBlocks.Clear();
+        }
+
         private MovingBlock CreateMovingBlock(bool isFirstBlock = false)
         {
             var newBlock = _movingBlockFactory.Create();
             newBlock.Initialize(_currentZ, _isRightSide, isFirstBlock);
             _isRightSide = !_isRightSide;
-            _activeBlocks.Add(newBlock);
             _currentZ += newBlock.GetSize();
             return newBlock;
         }

@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Zenject;
 
@@ -16,8 +17,15 @@ namespace Level
             gameObject.SetActive(false);
         }
 
-        public void Despawn()
+        public async void Despawn(int delay)
         {
+            var cancellationToken = gameObject.GetCancellationTokenOnDestroy();
+            var isCanceled = await UniTask.Delay(delay, cancellationToken: cancellationToken).SuppressCancellationThrow();
+            if (isCanceled)
+            {
+                return;
+            }
+
             _pool.Despawn(this);
         }
 
