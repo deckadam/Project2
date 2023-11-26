@@ -77,6 +77,11 @@ namespace Level
             if (!isPerfectPlacement)
             {
                 DropBlockPiece();
+                EventSystem.Raise(new NonPerfectPlacementEvent());
+            }
+            else
+            {
+                EventSystem.Raise(new PerfectPlacementEvent());
             }
         }
 

@@ -1,3 +1,4 @@
+using Audio;
 using Cinemachine;
 using Level;
 using Player;
@@ -14,6 +15,8 @@ namespace ContextInstaller
         [SerializeField] private PlayerData _playerData;
         [SerializeField] private MovingBlock _movingBlock;
         [SerializeField] private LevelFinishBlock _levelFinishBlock;
+        [SerializeField] private AudioData _audioData;
+        [SerializeField] private AudioSource _audioSource;
 
         public override void InstallBindings()
         {
@@ -32,6 +35,8 @@ namespace ContextInstaller
             Container.BindInstance(blockManagerData).AsSingle();
             Container.BindInstance(_playerData).AsSingle();
             Container.BindInstance(_vCam).AsSingle();
+            Container.BindInstance(_audioData).AsSingle();
+            Container.BindInstance(_audioSource).AsSingle();
             
             Container.Bind<CameraController>().AsSingle();
         }
