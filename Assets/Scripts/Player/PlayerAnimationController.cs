@@ -8,13 +8,19 @@ namespace Player
     {
         private static readonly int Dance = Animator.StringToHash("Dance");
         private static readonly int Run = Animator.StringToHash("Run");
-        
+
         [SerializeField] private Animator _animator;
 
         private void OnEnable()
         {
             EventSystem.Subscribe<GameStartRequestedEvent>(OnGameStartRequested);
             EventSystem.Subscribe<FinishLineReachedEvent>(DanceAnimationRequested);
+        }
+
+        private void OnDisable()
+        {
+            EventSystem.Unsubscribe<GameStartRequestedEvent>(OnGameStartRequested);
+            EventSystem.Unsubscribe<FinishLineReachedEvent>(DanceAnimationRequested);
         }
 
         private void DanceAnimationRequested(object obj)

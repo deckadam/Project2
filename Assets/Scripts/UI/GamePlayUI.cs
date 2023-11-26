@@ -7,10 +7,8 @@ using Zenject;
 
 namespace UI
 {
-    public class GamePlayUI : MonoBehaviour
+    public class GamePlayUI : UIBase
     {
-        [SerializeField] private CanvasGroup _startGameGroup;
-
         private MainUI _mainUI;
 
         [Inject]
@@ -45,13 +43,6 @@ namespace UI
         {
             SetVisibility(false);
             EventSystem.Raise(new GameStartRequestedEvent());
-        }
-
-        private void SetVisibility(bool isVisible)
-        {
-            _startGameGroup.alpha = isVisible ? 1f : 0f;
-            _startGameGroup.interactable = isVisible;
-            _startGameGroup.blocksRaycasts = isVisible;
         }
     }
 }
