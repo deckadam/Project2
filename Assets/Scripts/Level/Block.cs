@@ -123,14 +123,16 @@ namespace Level
             var scaleDifference = previousBlock.GetWidth() - blockToCut.GetWidth();
             transform.localScale = transform.localScale.ChangeX(scaleDifference);
 
-            var offset = blockToCut.GetWidth() / 2f;
+            var offset = 0f;;
             if (blockToCut.GetCenter() > previousBlock.GetCenter())
             {
-                offset += -Mathf.Abs(scaleDifference / 2f);
+                offset -= blockToCut.GetWidth() / 2f;
+                offset -= Mathf.Abs(scaleDifference / 2f);
             }
             else
             {
-                offset += +Mathf.Abs(scaleDifference / 2f);
+                offset += blockToCut.GetWidth() / 2f;
+                offset += Mathf.Abs(scaleDifference / 2f);
             }
 
             var positionDifference = blockToCut.GetCenter() - offset;
