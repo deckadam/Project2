@@ -1,5 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using Event;
 using Player.Events;
 using UnityEngine;
@@ -8,13 +9,12 @@ using Zenject;
 
 namespace Level
 {
-    public class Block : MonoBehaviour
+    public class Block : MonoBehaviour, IPoolable<IMemoryPool>
     {
         [SerializeField] protected float _size;
         [SerializeField] private float _movementSpeed;
 
-        protected bool _isOnRightSize;
-        protected bool _isLockedIn;
+        protected bool _isOnRightSide;
 
         private CancellationTokenSource _cancellationTokenSource;
         private IMemoryPool _pool;
@@ -24,7 +24,7 @@ namespace Level
             gameObject.SetActive(false);
         }
 
-        public async void Despawn(int delay,CancellationToken token)
+        public async void Despawn(int delay, CancellationToken token)
         {
             var cancellationToken = gameObject.GetCancellationTokenOnDestroy();
             var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, token);
@@ -56,15 +56,14 @@ namespace Level
                 AdjustScale(previousBlock);
             }
 
-            _isOnRightSize = isOnRightSide;
-            _isLockedIn = isLockedIn;
+            _isOnRightSide = isOnRightSide;
 
-            var xValue = 0f;
-            if (!isLockedIn)
+            if (isLockedIn)
             {
-                xValue = isOnRightSide ? -10f : 10f;
+                return;
             }
 
+            var xValue = isOnRightSide ? -10f : 10f;
             transform.position = new Vector3(xValue, 0, z);
 
             OnInitialize();
@@ -102,16 +101,11 @@ namespace Level
 
         private async void OnInitialize()
         {
-            if (_isLockedIn)
-            {
-                return;
-            }
-
             var manualCancellationTokenSource = new CancellationTokenSource();
             var onDestroyCancellationToken = gameObject.GetCancellationTokenOnDestroy();
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(manualCancellationTokenSource.Token, onDestroyCancellationToken);
 
-            var movementValue = _isOnRightSize ? _movementSpeed : -_movementSpeed;
+            var movementValue = _isOnRightSide ? _movementSpeed : -_movementSpeed;
             while (!onDestroyCancellationToken.IsCancellationRequested)
             {
                 transform.Translate(movementValue * Time.deltaTime, 0, 0);
@@ -122,6 +116,26 @@ namespace Level
                     break;
                 }
             }
+        }
+
+        public UniTask Drop(Block blockToCut, Block previousBlock)
+        {
+            var scaleDifference = previousBlock.GetWidth() - blockToCut.GetWidth();
+            transform.localScale = transform.localScale.ChangeX(scaleDifference);
+
+            var offset = blockToCut.GetWidth() / 2f;
+            if (blockToCut.GetCenter() > previousBlock.GetCenter())
+            {
+                offset += -Mathf.Abs(scaleDifference / 2f);
+            }
+            else
+            {
+                offset += +Mathf.Abs(scaleDifference / 2f);
+            }
+
+            var positionDifference = blockToCut.GetCenter() - offset;
+            transform.position = blockToCut.transform.position.ChangeX(positionDifference);
+            return transform.DOMoveY(-5f, 1f).AsyncWaitForCompletion().AsUniTask();
         }
 
         public float GetWidth() => transform.localScale.x;

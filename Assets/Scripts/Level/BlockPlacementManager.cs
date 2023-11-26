@@ -35,6 +35,7 @@ namespace Level
             _placedBlocks = new List<Block>();
             _placedBlocks.Add(CreateMovingBlock(true));
             _fallToken = new CancellationTokenSource();
+
             EventSystem.Subscribe<BlockPlaceRequestedEvent>(OnBlockPlacementRequested);
             EventSystem.Subscribe<PlayerFallRequestedEvent>(OnPlayerFallRequested);
         }
@@ -72,6 +73,18 @@ namespace Level
             var isPerfectPlacement = Mathf.Abs(threshhold) < _blockManagerData.PlacementThreshold;
             _activeBlock.Place(_placedBlocks[^1], isPerfectPlacement);
             _placedBlocks.Add(_activeBlock);
+
+            if (!isPerfectPlacement)
+            {
+                DropBlockPiece();
+            }
+        }
+
+        private async void DropBlockPiece()
+        {
+            var dropBlock = CreateMovingBlock(true, true);
+            await dropBlock.Drop(_placedBlocks[^1], _placedBlocks[^2]);
+            dropBlock.Despawn(0, new CancellationToken());
         }
 
         public async void StartPlacement()
@@ -128,22 +141,28 @@ namespace Level
             _placedBlocks.Add(lastItem);
         }
 
-        private Block CreateMovingBlock(bool isFirstBlock = false)
+        private Block CreateMovingBlock(bool isLocked = false, bool isDropBlock = false)
         {
             var newBlock = _movingBlockFactory.Create();
-            InitializeBlock(newBlock, isFirstBlock);
+            InitializeBlock(newBlock, isLocked, isDropBlock);
             return newBlock;
         }
 
-        private void CreateLevelFinishLine()
+        private void CreateLevelFinishLine(bool isLocked = false, bool isDropBlock = false)
         {
             var newBlock = _finishLineBlockFactory.Create();
-            InitializeBlock(newBlock);
+            InitializeBlock(newBlock, isLocked, isDropBlock);
         }
 
-        private void InitializeBlock(Block newBlock, bool isFirstBlock = false)
+        private void InitializeBlock(Block newBlock, bool isLocked, bool isDropBlock)
         {
-            newBlock.Initialize(_currentZ, _isRightSide, isFirstBlock, _activeBlock);
+            newBlock.Initialize(_currentZ, _isRightSide, isLocked, _activeBlock);
+
+            if (isDropBlock)
+            {
+                return;
+            }
+
             _isRightSide = !_isRightSide;
             _currentZ += newBlock.GetLength();
             _activeBlock = newBlock;

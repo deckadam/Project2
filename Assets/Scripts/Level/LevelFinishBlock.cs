@@ -5,7 +5,7 @@ using Zenject;
 
 namespace Level
 {
-    public class LevelFinishBlock : Block, IPoolable<IMemoryPool>
+    public class LevelFinishBlock : Block
     {
         private void OnTriggerEnter(Collider other)
         {
