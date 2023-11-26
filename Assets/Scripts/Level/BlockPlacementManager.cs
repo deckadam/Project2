@@ -19,6 +19,8 @@ namespace Level
 
         private float _currentZ;
         private bool _isRightSide;
+        private bool _isFirstRun = true;
+        private CancellationTokenSource _fallToken;
 
         [Inject]
         private void Inject(MovingBlock.Factory movingBlockFactory, LevelFinishBlock.Factory finishLineBlockFactory, BlockManagerData blockManagerData)
@@ -32,6 +34,7 @@ namespace Level
         {
             _placedBlocks = new List<Block>();
             _placedBlocks.Add(CreateMovingBlock(true));
+            _fallToken = new CancellationTokenSource();
             EventSystem.Subscribe<BlockPlaceRequestedEvent>(OnBlockPlacementRequested);
             EventSystem.Subscribe<PlayerFallRequestedEvent>(OnPlayerFallRequested);
         }
@@ -46,6 +49,9 @@ namespace Level
         private void OnPlayerFallRequested(object obj)
         {
             CancelPlacement();
+            _fallToken?.Cancel();
+            _fallToken?.Dispose();
+            _fallToken = null;
         }
 
         private void CancelPlacement()
@@ -70,7 +76,12 @@ namespace Level
 
         public async void StartPlacement()
         {
-            // DespawnPreviousBlocks();
+            if (!_isFirstRun)
+            {
+                DespawnPreviousBlocks();
+            }
+
+            _isFirstRun = false;
 
             CreateNewCancellationToken();
 
@@ -106,13 +117,15 @@ namespace Level
 
         private void DespawnPreviousBlocks()
         {
-            for (var i = 0; i < _placedBlocks.Count; i++)
+            for (var i = 0; i < _placedBlocks.Count - 1; i++)
             {
                 var activeBlock = _placedBlocks[i];
-                activeBlock.Despawn(_blockManagerData.BlockDespawnDelay * i);
+                activeBlock.Despawn(_blockManagerData.BlockDespawnDelay * i, _fallToken.Token);
             }
 
+            var lastItem = _placedBlocks[^1];
             _placedBlocks.Clear();
+            _placedBlocks.Add(lastItem);
         }
 
         private Block CreateMovingBlock(bool isFirstBlock = false)

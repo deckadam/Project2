@@ -24,10 +24,11 @@ namespace Level
             gameObject.SetActive(false);
         }
 
-        public async void Despawn(int delay)
+        public async void Despawn(int delay,CancellationToken token)
         {
             var cancellationToken = gameObject.GetCancellationTokenOnDestroy();
-            var isCanceled = await UniTask.Delay(delay, cancellationToken: cancellationToken).SuppressCancellationThrow();
+            var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, token);
+            var isCanceled = await UniTask.Delay(delay, cancellationToken: linkedToken.Token).SuppressCancellationThrow();
             if (isCanceled)
             {
                 return;
