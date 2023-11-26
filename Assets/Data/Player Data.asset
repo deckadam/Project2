@@ -17,3 +17,6 @@ MonoBehaviour:
   _cameraRotationDurationPerTurn: 5
   _cameraFocusDuration: 0.5
   _cameraVerticalAxisValue: 22.5
+  _fallPosition: {x: 0, y: -5, z: 5}
+  _fallDuration: 1
+  _fallPower: 3
