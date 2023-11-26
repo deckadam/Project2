@@ -9,14 +9,14 @@ namespace Player
 {
     public class PlayerMovementController : MonoBehaviour
     {
-        private PlayerData.PlayerMovementData _movementData;
+        private PlayerData _movementData;
         private CancellationTokenSource _tokenSource;
         private float _currentCenter;
 
         [Inject]
         private void Inject(PlayerData playerData)
         {
-            _movementData = playerData.MovementData;
+            _movementData = playerData;
         }
 
         private void OnEnable()

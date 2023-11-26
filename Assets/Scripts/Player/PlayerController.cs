@@ -19,12 +19,15 @@ namespace Player
         private void OnEnable()
         {
             _cameraController.Initialize(this);
+            
             EventSystem.Subscribe<PlayerFallRequestedEvent>(OnPlayerFallRequested);
             EventSystem.Subscribe<FinishLineReachedEvent>(OnFinishLineReached);
         }
 
         private void OnDisable()
         {
+            _cameraController.Deinitialize();
+
             EventSystem.Unsubscribe<PlayerFallRequestedEvent>(OnPlayerFallRequested);
             EventSystem.Unsubscribe<FinishLineReachedEvent>(OnFinishLineReached);
         }

@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6952f6845b40afa46ec30c93166b6b, type: 3}
   m_Name: Player Data
   m_EditorClassIdentifier: 
-  _playerMovementData:
-    _playerForwardSpeed: 2.5
-    _playerHorizontalSpeed: 2
+  _playerForwardSpeed: 2.5
+  _playerHorizontalSpeed: 4
+  _cameraRotationDurationPerTurn: 5
+  _cameraFocusDuration: 0.5
+  _cameraVerticalAxisValue: 22.5
